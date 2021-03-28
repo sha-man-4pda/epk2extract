@@ -193,7 +193,8 @@ int handle_file(char *file, config_opts_t *config_opts) {
 }
 
 int main(int argc, char *argv[]) {
-	printf("\nLG Electronics digital TV firmware package (EPK) extractor version 4.8 (http://openlgtv.org.ru)\n\n");
+	printf("\nLG Electronics digital TV firmware package (EPK) extractor version 4.8 (http://openlgtv.org.ru)\n");
+	printf("Fork by sha-man v0.1 (http://github.com/sha-man-4pda)\n\n");
 	if (argc < 2) {
 		printf("Usage: epk2extract [-options] FILENAME\n\n");
 		printf("Options:\n");

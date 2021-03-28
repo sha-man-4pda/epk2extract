@@ -21,11 +21,13 @@ enum mtkpkg_variant {
 	NEW = 1 << 1,
 	THOMPSON = 1 << 2,
 	PHILIPS = 1 << 3,
-	SHARP = 1 << 4
+	SHARP = 1 << 4,
+	CVT = 1 << 5
 };
 
 #define SIZEOF_THOMPSON_HEADER 0x170
 #define SIZEOF_OLD_HEADER 0x98
+#define SIZEOF_CVT_HEADER 0x170
 
 static int mtkpkg_variant_flags = NEW;
 
@@ -57,6 +59,14 @@ int compare_pkg_header(uint8_t *header, size_t headerSize){
 		printf("[+] Found PHILIPS Package\n");
 		return 1;
 	}
+
+	if( !strncmp(hdr->vendor_magic, CVT_PKG_MAGIC, strlen(CVT_PKG_MAGIC))
+	){
+		printf("[+] Found CVT Package\n");
+		mtkpkg_variant_flags |= CVT;
+		return 1;
+	}
+
 
 	if( !strncmp(hdr->mtk_magic, MTK_FIRMWARE_MAGIC, strlen(MTK_FIRMWARE_MAGIC)) ){
 		printf("[+] Found UNKNOWN Package (Magic: '%.*s')\n",
@@ -154,6 +164,12 @@ MFILE *is_mtk_pkg(const char *pkgfile){
 		return mf;
 	}
 
+	firstPak = (struct mtkpkg *)(data + SIZEOF_CVT_HEADER);
+	if(is_known_partition(firstPak)){
+		mtkpkg_variant_flags = NEW | CVT;
+		return mf;
+	}
+
 	mclose(mf);
 	return NULL;
 }
@@ -240,6 +256,7 @@ void process_block(struct thread_arg *arg){
 		out_cur->size
 	);
 	mclose(out);
+	munmap(out_cur->ptr, out_cur->size);
 	free(out_cur);
 
 	free(arg->filename);
@@ -369,6 +386,11 @@ void print_pkg_header(struct mtkupg_header *hdr){
 static off_t get_mtkpkg_offset(){
 	if((mtkpkg_variant_flags & THOMPSON) == THOMPSON){
 		return SIZEOF_THOMPSON_HEADER;
+	}
+
+	if((mtkpkg_variant_flags & CVT) == CVT){
+		printf("[DBG] get_mtkpkg_offset: CVT Header Size set\n");
+		return SIZEOF_CVT_HEADER;
 	}
 
 	off_t offset = 0;
