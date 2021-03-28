@@ -313,12 +313,12 @@ cursor_t *lzhs_decode(MFILE *in_file, off_t offset, const char *out_path, uint8_
 	printf("[LZHS] Converting Thumb => ARM...\n");
 	ARMThumb_Convert(out_bytes, out_cur.size, 0, 0);
 
-	printf("[LZHS] Calculating checksum...\n");
+	printf("[LZHS] Calculating checksum... ");
 	uint8_t checksum = lzhs_calc_checksum(out_bytes, out_cur.size);
 	if(out_checksum != NULL){
 		*out_checksum = checksum;
 	}
-	printf("Calculated checksum = 0x%x\n", checksum);
+	printf("Calculated checksum = 0x%x\n\n", checksum);
 	if (checksum != header->checksum)
 		printf("[LZHS] WARNING: Checksum mismatch (got 0x%x, expected 0x%x)!!\n", checksum, header->checksum);
 	if (out_cur.size != header->uncompressedSize)
