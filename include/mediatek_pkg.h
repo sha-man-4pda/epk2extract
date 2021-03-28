@@ -16,6 +16,7 @@
 #define TPV_PKG_MAGIC2 "TPV\0"
 #define PHILIPS_PKG_MAGIC "PHIL"
 #define PHILIPS_PKG_MAGIC2 "Phil"
+#define CVT_PKG_MAGIC "cvt\0"
 
 #define PHILIPS_HEADER_SIZE 0x80 //at top before MTK header
 #define PHILIPS_SIGNATURE_SIZE 0x100 //RSA-2048 at the bottom
