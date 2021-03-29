@@ -68,7 +68,20 @@ int handle_file(char *file, config_opts_t *config_opts) {
 		extract_philips_fusion1(mf, config_opts);
 	} else if((mf=is_lzhs_fs(file))){
 		asprintf(&dest_file, "%s/%s.ext4", dest_dir, file_name);
+		printf("UnLZHS file to: %s\n\n", dest_file);
 		extract_lzhs_fs(mf, dest_file, config_opts);
+		//In some CVT pkg's SQUASHFS also can be LZHS-compressed
+		if (is_squashfs(dest_file)) {
+			printf("\n%s is SQUASHFS, renaming\n", dest_file);
+			char *new_file = NULL;
+			asprintf(&new_file, "%s/%s.squashfs", dest_dir, file_name);
+			rename(dest_file, new_file);
+			asprintf(&dest_file, "%s/%s.unsquashfs", dest_dir, file_name);
+			printf("UnSQUASHFS file to: %s\n\n", dest_file);
+			rmrf(dest_file);
+			unsquashfs(new_file, dest_file);
+			free(new_file);
+		}
 	/* LZ4 */
 	} else if ((mf=is_lz4(file))) {
 		asprintf(&dest_file, "%s/%s.unlz4", dest_dir, file_name);
@@ -194,7 +207,7 @@ int handle_file(char *file, config_opts_t *config_opts) {
 
 int main(int argc, char *argv[]) {
 	printf("\nLG Electronics digital TV firmware package (EPK) extractor version 4.8 (http://openlgtv.org.ru)\n");
-	printf("Fork by sha-man v0.1 (http://github.com/sha-man-4pda)\n\n");
+	printf("Fork by sha-man v0.2 (http://github.com/sha-man-4pda)\n\n");
 	if (argc < 2) {
 		printf("Usage: epk2extract [-options] FILENAME\n\n");
 		printf("Options:\n");
